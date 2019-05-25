@@ -17,7 +17,7 @@
                 {
                     if (db.客戶聯絡人.Where(p => p.客戶Id == this.客戶Id).Any())
                     {
-                        yield return new ValidationResult("此Email 已存在",new string[] { "Email" });
+                        yield return new ValidationResult("此Email 已經存在",new string[] { "Email" });
                     }
                 }
             }

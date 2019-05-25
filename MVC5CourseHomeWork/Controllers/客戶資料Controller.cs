@@ -12,10 +12,12 @@ namespace MVC5CourseHomeWork.Controllers
 {
     public class 客戶資料Controller : Controller
     {
-        private CustomerEntities db = new CustomerEntities();
-
+        private CustomerEntities db = new CustomerEntities(); //改用Repository
+        private 客戶資料Repository repo = RepositoryHelper.Get客戶資料Repository();
+        
         public ActionResult 客戶概要檢視()
         {
+
             return View(db.客戶概要檢視.ToList());
         }
 
@@ -23,7 +25,8 @@ namespace MVC5CourseHomeWork.Controllers
         // GET: 客戶資料
         public ActionResult Index(string keyword)
         {
-            var data = db.客戶資料.Where(p => false == p.是否已刪除).ToList().AsQueryable();
+            //var data = db.客戶資料.Where(p => false == p.是否已刪除).ToList().AsQueryable();
+            var data = repo.All();
             if (!String.IsNullOrEmpty(keyword)) {
                 data = data.Where(p => p.客戶名稱.Contains(keyword));
             }
@@ -33,11 +36,13 @@ namespace MVC5CourseHomeWork.Controllers
         // GET: 客戶資料/Details/5
         public ActionResult Details(int? id)
         {
+
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
+            //客戶資料 客戶資料 = db.客戶資料.Find(id);
+            客戶資料 客戶資料 = repo.Find(id);
             if (客戶資料 == null)
             {
                 return HttpNotFound();
@@ -60,8 +65,10 @@ namespace MVC5CourseHomeWork.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.客戶資料.Add(客戶資料);
-                db.SaveChanges();
+                //db.客戶資料.Add(客戶資料);
+                //db.SaveChanges();
+                repo.Add(客戶資料);
+                repo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
 
@@ -75,7 +82,8 @@ namespace MVC5CourseHomeWork.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
+            //客戶資料 客戶資料 = db.客戶資料.Find(id);
+            客戶資料 客戶資料 = repo.Find(id);
             if (客戶資料 == null)
             {
                 return HttpNotFound();
@@ -92,8 +100,10 @@ namespace MVC5CourseHomeWork.Controllers
         {
             if (ModelState.IsValid)
             {
-                db.Entry(客戶資料).State = EntityState.Modified;
-                db.SaveChanges();
+                //db.Entry(客戶資料).State = EntityState.Modified;
+                //db.SaveChanges();
+                repo.UnitOfWork.Context.Entry(客戶資料).State = EntityState.Modified;
+                repo.UnitOfWork.Commit();
                 return RedirectToAction("Index");
             }
             return View(客戶資料);
@@ -119,10 +129,13 @@ namespace MVC5CourseHomeWork.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            客戶資料 客戶資料 = db.客戶資料.Find(id);
+            //客戶資料 客戶資料 = db.客戶資料.Find(id);
             //db.客戶資料.Remove(客戶資料);
-            客戶資料.是否已刪除 = true;
-            db.SaveChanges();
+            //客戶資料.是否已刪除 = true;
+            //db.SaveChanges();
+            客戶資料 客戶資料 = repo.Find(id);
+            repo.Delete(客戶資料);
+            repo.UnitOfWork.Commit();
             return RedirectToAction("Index");
         }
 
@@ -130,7 +143,8 @@ namespace MVC5CourseHomeWork.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                //db.Dispose();
+                repo.UnitOfWork.Context.Dispose();
             }
             base.Dispose(disposing);
         }
